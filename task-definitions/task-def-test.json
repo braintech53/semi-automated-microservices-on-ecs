@@ -1,0 +1,66 @@
+{
+  "family": "test-auth-service",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/test-auth-service-task-role",
+  "containerDefinitions": [{
+    "name": "auth",
+    "image": "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/auth-service:test",
+    "portMappings": [{
+      "containerPort": 3000,
+      "protocol": "tcp"
+    }],
+    "environment": [
+      {
+        "name": "NODE_ENV",
+        "value": "test"
+      },
+      {
+        "name": "PORT",
+        "value": "3000"
+      },
+      {
+        "name": "ENABLE_DEBUG",
+        "value": "true"
+      }
+    ],
+    "secrets": [
+      {
+        "name": "MONGODB_URI",
+        "valueFrom": "arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:test/auth/mongodb-uri"
+      },
+      {
+        "name": "JWT_SECRET",
+        "valueFrom": "arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:test/auth/jwt-secret"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/auth-service/test",
+        "awslogs-region": "${AWS_REGION}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    },
+    "healthCheck": {
+      "command": ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"],
+      "interval": 30,
+      "timeout": 5,
+      "retries": 3,
+      "startPeriod": 60
+    }
+  }],
+  "tags": [
+    {
+      "key": "Environment",
+      "value": "test"
+    },
+    {
+      "key": "Service",
+      "value": "auth-service"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "TargetValue": 60.0,
+  "CustomizedMetricSpecification": {
+    "MetricName": "CPUUtilization",
+    "Namespace": "AWS/ECS",
+    "Dimensions": [
+      {
+        "Name": "ClusterName",
+        "Value": "${CLUSTER_NAME}"
+      },
+      {
+        "Name": "ServiceName",
+        "Value": "${SERVICE_NAME}"
+      }
+    ],
+    "Statistic": "Average",
+    "Unit": "Percent"
+  },
+  "ScaleOutCooldown": 60,
+  "ScaleInCooldown": 60,
+  "DisableScaleIn": false,
+  "PredefinedMetricSpecification": {
+    "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
+  },
+  "TargetTrackingScalingPolicyConfiguration": {
+    "TargetValue": 60.0,
+    "DisableScaleIn": false,
+    "ScaleInCooldown": 60,
+    "ScaleOutCooldown": 60
+  },
+  "PolicyType": "TargetTrackingScaling",
+  "ResourceId": "service/${CLUSTER_NAME}/${SERVICE_NAME}",
+  "ScalableDimension": "ecs:service:DesiredCount",
+  "ServiceNamespace": "ecs"
+}
